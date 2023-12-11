@@ -23,18 +23,21 @@ yellow_h = [40, green_h[0] - 1]
 red_h_2 = [0, yellow_h[0] - 1]
 
 ev3 = EV3Brick()
-speed = 300
-angle_a = 153 # full 459
-angle_d = 190 # full 760
+speed = 100
+angle_a = 160 # full 480
+angle_d = 195 # full 780
 motor_a = Motor(Port.A, Direction.COUNTERCLOCKWISE)
 motor_d = Motor(Port.D, Direction.COUNTERCLOCKWISE)
 
 color_sensor = ColorSensor(Port.S1)
 
+
 def run_motor(motor, angle):
 	motor.run_target(speed, angle)
 	# motor.reset_angle(-1) Сместилось на 20 градусов по обоим двигателям
 	# wait(10000)
+	wait(2000)
+
 
 def conv_rgb2hsv(rgb):
 	r = rgb[0] / 100
@@ -61,6 +64,7 @@ def conv_rgb2hsv(rgb):
 	v = cmax
 	return [int(round(h)), int(round(100 * s)), int(round(100 * v))]
 
+
 def detect_color():
 	rgb = color_sensor.rgb()
 	hsv = conv_rgb2hsv(rgb)
@@ -85,6 +89,18 @@ def detect_color():
 			return BROWN
 		return RED
 	return -1
+
+
+def drop(current_angle_a, current_angle_d):
+	angle_drop_a = 40
+	angle_drop_d = 80
+	ev3.speaker.beep(300, 100)
+	run_motor(motor_a, current_angle_a + angle_drop_a)
+	run_motor(motor_d, current_angle_d + angle_drop_d)
+	run_motor(motor_d, current_angle_d)
+	run_motor(motor_a, current_angle_a)
+	ev3.speaker.beep(300, 100)
+
 
 # i = 0
 # repeats = 7
@@ -115,32 +131,12 @@ def detect_color():
 # just moving
 
 # ev3.speaker.beep(300, 100)
-# run_motor(motor_a, 15)
+# run_motor(motor_a, -475)
 # run_motor(motor_a, 0)
-# run_motor(motor_d, -760)
-# run_motor(motor_d, 0)
+run_motor(motor_d, 780)
+wait(5000)
+run_motor(motor_d, 0)
 # ev3.speaker.beep(300, 100)
-
-# forward_angle_a = 156
-j = 0
-reps_j = 3
-a_a = 0
-print(detect_color())
-while j < reps_j:
-	a_a += angle_a
-	run_motor(motor_a, a_a)
-	print(detect_color())
-	j += 1
-
-
-j = 0
-reps_j = 3
-print(detect_color())
-while j < reps_j:
-	a_a -= angle_a
-	run_motor(motor_a, a_a)
-	print(detect_color())
-	j += 1
 
 
 def snake():
@@ -187,17 +183,55 @@ def snake_improved():
 	ev3.speaker.beep(300, 100)
 
 
-def drop():
-	angle_a = 40
-	angle_d = 40
+def snake_other():
+	a_a = 0
+	a_d = 0
+	i = 0
+	reps_i = 5
+	reps_j = 3
 	ev3.speaker.beep(300, 100)
-	run_motor(motor_a, angle_a)
-	run_motor(motor_d, angle_d)
-	run_motor(motor_a, 0)
+	while i < reps_i:
+		j = 0
+		print(detect_color())
+		while j < reps_j:
+			if j == 0:
+				a_a += 175
+			else:
+				a_a += 150
+			run_motor(motor_a, a_a)
+			print(detect_color())
+			j += 1
+		a_a = 0
+		run_motor(motor_a, a_a)
+		if i + 1 != reps_i:
+			wait(20000)
+			a_d += angle_d
+			run_motor(motor_d, a_d)
+		i += 1
+		print("--------------------------------------------", i)
+	wait(20000)
 	run_motor(motor_d, 0)
 	ev3.speaker.beep(300, 100)
 
 
+def forward_along_line():
+	j = 0
+	reps_j = 3
+	a_a = 0
+	print(detect_color())
+	while j < reps_j:
+		if j == 0:
+			a_a += 175
+		else:
+			a_a += 150
+		run_motor(motor_a, a_a)
+		print(detect_color())
+		j += 1
+	drop(a_a, 0)
+	run_motor(motor_a, 0)
+
+
 # snake()
-# drop()
 # snake_improved()
+# snake_other()
+# forward_along_line()
