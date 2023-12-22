@@ -47,11 +47,11 @@ current_link_2_d = 0
 map_red_field = []
 
 class Point:
-	link_0_alpha = 90 # degrees
+	link_0_alpha = 0 # degrees
 	link_0_a = 0 # mm
 	link_1_theta = 0 # degrees
-	link_1_alpha = 90 # degrees
-	link_1_a = 122 # mm
+	link_1_alpha = -90 # degrees
+	link_1_a = 110 # mm
 	link_2_theta = 0 # degrees
 
 	def __init__(self, x, y, link_1_d, link_2_d):
@@ -112,7 +112,9 @@ def move_link_2_d_to(row, col):
 
 def run_motor(motor, angle):
 	motor.run_target(SPEED, angle)
+	# --
 	wait(2000)
+	# --
 
 
 def conv_rgb2hsv(rgb):
@@ -167,15 +169,53 @@ def detect_color():
 	return -1
 
 
-def drop(current_angle_a, current_angle_d):
-	angle_drop_a = 40
-	angle_drop_d = 80
+def drop():
+	drop_link_1_d = 100
+	drop_link_2_d = 40
+	# --
 	ev3.speaker.beep(300, 100)
-	run_motor(motor_a, current_angle_a + angle_drop_a)
-	run_motor(motor_d, current_angle_d + angle_drop_d)
-	run_motor(motor_d, current_angle_d)
-	run_motor(motor_a, current_angle_a)
+	# --
+	run_motor(MOTOR_A, current_link_2_d + drop_link_2_d)
+	run_motor(MOTOR_D, current_link_1_d + drop_link_1_d)
+	# --
 	ev3.speaker.beep(300, 100)
+	# --
+
+
+def process_line_0(target_color):
+	col = 1
+	while col <= COLS:
+		if detect_color() == target_color:
+			drop()
+			break
+		elif col != COLS:
+			move_to(0, col)
+		col += 1
+
+
+def run():
+	init_map()
+	print("Введите код цвета")
+	target_color = int(input())
+	ev3.speaker.beep(300, 100)
+	process_line_0(target_color)
+	row = 1
+	current_color = target_color
+	while row < ROWS:
+		# --
+		move_to(row, current_color)
+		# --
+		current_color = detect_color()
+		if current_color == target_color:
+			drop()
+		row += 1
+	move_to(0, 0)
+	ev3.speaker.beep(300, 100)
+
+
+# запуск программы
+# run()
+# ----------------------------------------------------------
 
 
 # i = 0
@@ -209,9 +249,9 @@ def drop(current_angle_a, current_angle_d):
 # ev3.speaker.beep(300, 100)
 # run_motor(motor_a, -475)
 # run_motor(motor_a, 0)
-run_motor(motor_d, 780)
-wait(5000)
-run_motor(motor_d, 0)
+# run_motor(motor_d, 780)
+# wait(5000)
+# run_motor(motor_d, 0)
 # ev3.speaker.beep(300, 100)
 
 
@@ -305,6 +345,30 @@ def forward_along_line():
 		j += 1
 	drop(a_a, 0)
 	run_motor(motor_a, 0)
+
+
+def print_states_link_1_d():
+	init_map()
+	i = 0
+	while i < ROWS:
+		j = 0
+		while j < COLS:
+			print(map_red_field[i][j].link_1_d, end = " ")
+			j += 1
+		print("")
+		i += 1
+
+
+def print_states_link_2_d():
+	init_map()
+	i = 0
+	while i < ROWS:
+		j = 0
+		while j < COLS:
+			print(map_red_field[i][j].link_2_d, end = " ")
+			j += 1
+		print("")
+		i += 1
 
 
 # snake()
