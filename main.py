@@ -33,7 +33,7 @@ color_sensor = ColorSensor(Port.S1)
 
 ROWS = 5
 COLS = 4
-SPEED = 300
+SPEED = 50
 
 # инициализация текущего состояния
 current_row = 0
@@ -44,6 +44,7 @@ current_link_1_d = 0
 current_link_2_d = 0
 # ----------------------------------------------------------
 
+is_dropped = False
 map_red_field = []
 
 class Point:
@@ -71,7 +72,7 @@ def init_map():
 		x = current_x
 		link_2_d = current_link_2_d
 		while col < COLS:
-			map_red_field[row][col].append(Point(x, y, link_1_d, link_2_d))
+			map_red_field[row].append(Point(x, y, link_1_d, link_2_d))
 			x += 51
 			if col == 0:
 				link_2_d += 175
@@ -84,8 +85,14 @@ def init_map():
 
 
 def update_current_state(row, col):
-	current_row = map_red_field[row][col].row
-	current_col = map_red_field[row][col].col
+	global current_row
+	global current_col
+	global current_x
+	global current_y
+	global current_link_1_d
+	global current_link_2_d
+	current_row = row
+	current_col = col
 	current_x = map_red_field[row][col].x
 	current_y = map_red_field[row][col].y
 	current_link_1_d = map_red_field[row][col].link_1_d
@@ -94,7 +101,8 @@ def update_current_state(row, col):
 
 def move_to(row, col):
 	if current_row != row:
-		move_link_2_d_to(row, 0)
+		if not is_dropped:
+			move_link_2_d_to(row, 0)
 		move_link_1_d_to(row, col)
 	if current_col != col:
 		move_link_2_d_to(row, col)
@@ -170,16 +178,18 @@ def detect_color():
 
 
 def drop():
+	global is_dropped
 	drop_link_1_d = 100
 	drop_link_2_d = 40
 	# --
-	ev3.speaker.beep(300, 100)
+	ev3.speaker.beep(500, 200)
 	# --
 	run_motor(MOTOR_A, current_link_2_d + drop_link_2_d)
 	run_motor(MOTOR_D, current_link_1_d + drop_link_1_d)
 	# --
-	ev3.speaker.beep(300, 100)
+	ev3.speaker.beep(500, 200)
 	# --
+	is_dropped = True
 
 
 def process_line_0(target_color):
@@ -194,23 +204,27 @@ def process_line_0(target_color):
 
 
 def run():
+	global is_dropped
 	init_map()
 	print("Введите код цвета")
 	target_color = int(input())
-	ev3.speaker.beep(300, 100)
+	ev3.speaker.beep(500, 200)
 	process_line_0(target_color)
 	row = 1
 	current_color = target_color
 	while row < ROWS:
 		# --
-		move_to(row, current_color)
+		move_to(row, current_color % COLS)
 		# --
 		current_color = detect_color()
 		if current_color == target_color:
 			drop()
+		else:
+			is_dropped = False
 		row += 1
+	is_dropped = False
 	move_to(0, 0)
-	ev3.speaker.beep(300, 100)
+	ev3.speaker.beep(500, 200)
 
 
 # запуск программы
@@ -247,8 +261,8 @@ def run():
 # just moving
 
 # ev3.speaker.beep(300, 100)
-# run_motor(motor_a, -475)
-# run_motor(motor_a, 0)
+# run_motor(MOTOR_A, -175)
+# run_motor(MOTOR_A, 20)
 # run_motor(motor_d, 780)
 # wait(5000)
 # run_motor(motor_d, 0)
@@ -357,6 +371,7 @@ def print_states_link_1_d():
 			j += 1
 		print("")
 		i += 1
+	print("-----------------------------------------------------------")
 
 
 def print_states_link_2_d():
@@ -369,9 +384,19 @@ def print_states_link_2_d():
 			j += 1
 		print("")
 		i += 1
+	print("-----------------------------------------------------------")
 
 
 # snake()
 # snake_improved()
 # snake_other()
 # forward_along_line()
+# print_states_link_1_d()
+# print_states_link_2_d()
+# map_red_field.append([])
+# print(len(map_red_field))
+# print(map_red_field[0])
+
+init_map()
+move_to(0, 1)
+move_to(0, 0)
