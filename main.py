@@ -33,7 +33,7 @@ color_sensor = ColorSensor(Port.S1)
 
 ROWS = 5
 COLS = 4
-SPEED = 50
+SPEED = 300
 
 # инициализация текущего состояния
 current_row = 0
@@ -106,22 +106,21 @@ def move_to(row, col):
 		move_link_1_d_to(row, col)
 	if current_col != col:
 		move_link_2_d_to(row, col)
+	update_current_state(row, col)
 
 
 def move_link_1_d_to(row, col):
 	run_motor(MOTOR_D, map_red_field[row][col].link_1_d)
-	update_current_state(row, col)
 
 
 def move_link_2_d_to(row, col):
 	run_motor(MOTOR_A, map_red_field[row][col].link_2_d)
-	update_current_state(row, col)
 
 
 def run_motor(motor, angle):
 	motor.run_target(SPEED, angle)
 	# --
-	wait(2000)
+	wait(200)
 	# --
 
 
@@ -178,6 +177,8 @@ def detect_color():
 
 
 def drop():
+	global current_row
+	global current_col
 	global is_dropped
 	drop_link_1_d = 100
 	drop_link_2_d = 40
@@ -189,6 +190,8 @@ def drop():
 	# --
 	ev3.speaker.beep(500, 200)
 	# --
+	current_row += 1
+	current_col += 1
 	is_dropped = True
 
 
@@ -261,7 +264,7 @@ def run():
 # just moving
 
 # ev3.speaker.beep(300, 100)
-# run_motor(MOTOR_A, -175)
+# run_motor(MOTOR_A, -515)
 # run_motor(MOTOR_A, 20)
 # run_motor(motor_d, 780)
 # wait(5000)
@@ -398,5 +401,22 @@ def print_states_link_2_d():
 # print(map_red_field[0])
 
 init_map()
-move_to(0, 1)
+is_dropped = True
+# print(detect_color())
+move_to(0, 3)
+# print(detect_color())
+move_to(4, 3)
+is_dropped = False
+# move_to(0, 3)
+
+# print(detect_color())
+# move_to(4, 3)
+# print(detect_color())
+
+# print(detect_color())
+# move_to(0, 3)
+# print(detect_color())
+# wait(10000)
+# drop()
 move_to(0, 0)
+# print(detect_color())
