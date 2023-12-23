@@ -181,17 +181,20 @@ def drop():
 	global current_col
 	global is_dropped
 	drop_link_1_d = 100
-	drop_link_2_d = 40
+	if current_col == 0:
+		drop_link_2_d = 70
+	else:
+		drop_link_2_d = 40
 	# --
-	ev3.speaker.beep(500, 200)
+	# ev3.speaker.beep(500, 200)
 	# --
 	run_motor(MOTOR_A, current_link_2_d + drop_link_2_d)
 	run_motor(MOTOR_D, current_link_1_d + drop_link_1_d)
 	# --
-	ev3.speaker.beep(500, 200)
+	# ev3.speaker.beep(500, 200)
 	# --
-	current_row += 1
-	current_col += 1
+	current_row += 100
+	current_col += 100
 	is_dropped = True
 
 
@@ -264,11 +267,15 @@ def run():
 # just moving
 
 # ev3.speaker.beep(300, 100)
-# run_motor(MOTOR_A, -515)
-# run_motor(MOTOR_A, 20)
+# run_motor(MOTOR_A, -10)
+# run_motor(MOTOR_A, -15)
 # run_motor(motor_d, 780)
 # wait(5000)
-# run_motor(motor_d, 0)
+# run_motor(MOTOR_D, 100)
+# wait(5000)
+# run_motor(MOTOR_D, 195)
+# wait(5000)
+# run_motor(MOTOR_D, 0)
 # ev3.speaker.beep(300, 100)
 
 
@@ -390,6 +397,71 @@ def print_states_link_2_d():
 	print("-----------------------------------------------------------")
 
 
+def forward_along_last_column():
+	global is_dropped
+	init_map()
+	move_to(0, 3)
+	print(detect_color())
+	drop()
+	move_to(1, 3)
+	print(detect_color())
+	drop()
+	move_to(2, 3)
+	print(detect_color())
+	drop()
+	move_to(3, 3)
+	print(detect_color())
+	drop()
+	move_to(4, 3)
+	print(detect_color())
+	drop()
+	is_dropped = False
+	move_to(0, 0)
+
+
+def forward_along_first_row():
+	init_map()
+	print(detect_color())
+	move_to(0, 1)
+	print(detect_color())
+	move_to(0, 2)
+	print(detect_color())
+	move_to(0, 3)
+	print(detect_color())
+	move_to(0, 2)
+	print(detect_color())
+	move_to(0, 1)
+	print(detect_color())
+	move_to(0, 0)
+	print(detect_color())
+
+
+def forward_along_first_column():
+	global is_dropped
+	init_map()
+	print(detect_color())
+	drop()
+	move_to(1, 0)
+	print(detect_color())
+	drop()
+	move_to(2, 0)
+	print(detect_color())
+	drop()
+	move_to(3, 0)
+	print(detect_color())
+	drop()
+	move_to(4, 0)
+	print(detect_color())
+	drop()
+	is_dropped = False
+	move_to(0, 0)
+
+
+forward_along_last_column()
+# forward_along_first_row()
+# forward_along_first_column()
+
+
 # snake()
 # snake_improved()
 # snake_other()
@@ -400,13 +472,13 @@ def print_states_link_2_d():
 # print(len(map_red_field))
 # print(map_red_field[0])
 
-init_map()
-is_dropped = True
+# init_map()
+# is_dropped = True
 # print(detect_color())
-move_to(0, 3)
+# move_to(0, 3)
 # print(detect_color())
-move_to(4, 3)
-is_dropped = False
+# move_to(4, 3)
+# is_dropped = False
 # move_to(0, 3)
 
 # print(detect_color())
@@ -418,5 +490,5 @@ is_dropped = False
 # print(detect_color())
 # wait(10000)
 # drop()
-move_to(0, 0)
+# move_to(0, 0)
 # print(detect_color())
