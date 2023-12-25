@@ -13,13 +13,13 @@ RED = 4
 WHITE = 5
 BROWN = 6
 
-V_MIN = 7
-V_MIN_BROWN = 25
+V_MIN = 15
+V_MIN_BROWN = 35
 S_MIN = 50
 
 red_h = [300, 360]
 blue_h = [170, red_h[0] - 1]
-green_h = [80, blue_h[0] - 1]
+green_h = [90, blue_h[0] - 1]
 yellow_h = [40, green_h[0] - 1]
 red_h_2 = [0, yellow_h[0] - 1]
 # ----------------------------------------------------------
@@ -33,7 +33,11 @@ color_sensor = ColorSensor(Port.S1)
 
 ROWS = 5
 COLS = 4
-SPEED = 300
+
+# инициализация скоростей
+SPEED_A = 600
+SPEED_D = 300
+# ----------------------------------------------------------
 
 # инициализация текущего состояния
 current_row = 0
@@ -104,24 +108,21 @@ def move_to(row, col):
 		if not is_dropped:
 			move_link_2_d_to(row, 0)
 		move_link_1_d_to(row, col)
-	if current_col != col:
-		move_link_2_d_to(row, col)
+	move_link_2_d_to(row, col)
 	update_current_state(row, col)
 
 
 def move_link_1_d_to(row, col):
-	run_motor(MOTOR_D, map_red_field[row][col].link_1_d)
+	run_motor(MOTOR_D, SPEED_D, map_red_field[row][col].link_1_d)
 
 
 def move_link_2_d_to(row, col):
-	run_motor(MOTOR_A, map_red_field[row][col].link_2_d)
+	run_motor(MOTOR_A, SPEED_A, map_red_field[row][col].link_2_d)
 
 
-def run_motor(motor, angle):
-	motor.run_target(SPEED, angle)
-	# --
-	wait(200)
-	# --
+def run_motor(motor, speed, angle):
+	motor.run_target(speed, angle)
+	wait(100)
 
 
 def conv_rgb2hsv(rgb):
@@ -153,7 +154,6 @@ def conv_rgb2hsv(rgb):
 def detect_color():
 	rgb = color_sensor.rgb()
 	hsv = conv_rgb2hsv(rgb)
-	# ev3.screen.print(hsv)
 	print(hsv)
 	if hsv[2] < V_MIN:
 		return BLACK
@@ -164,10 +164,10 @@ def detect_color():
 	if hsv[0] >= green_h[0] and hsv[0] <= green_h[1]:
 		return GREEN
 	if hsv[0] >= yellow_h[0] and hsv[0] <= yellow_h[1]:
-		if hsv[2] < V_MIN_BROWN:
-			return BROWN
 		return YELLOW
 	if hsv[0] >= red_h[0] and hsv[0] <= red_h[1]:
+		if hsv[2] < V_MIN_BROWN:
+			return BROWN
 		return RED
 	if hsv[0] >= red_h_2[0] and hsv[0] <= red_h_2[1]:
 		if hsv[2] < V_MIN_BROWN:
@@ -185,16 +185,9 @@ def drop():
 		drop_link_2_d = 70
 	else:
 		drop_link_2_d = 40
-	# --
-	# ev3.speaker.beep(500, 200)
-	# --
-	run_motor(MOTOR_A, current_link_2_d + drop_link_2_d)
-	run_motor(MOTOR_D, current_link_1_d + drop_link_1_d)
-	# --
-	# ev3.speaker.beep(500, 200)
-	# --
+	run_motor(MOTOR_A, SPEED_A, current_link_2_d + drop_link_2_d)
+	run_motor(MOTOR_D, SPEED_D, current_link_1_d + drop_link_1_d)
 	current_row += 100
-	current_col += 100
 	is_dropped = True
 
 
@@ -212,16 +205,14 @@ def process_line_0(target_color):
 def run():
 	global is_dropped
 	init_map()
-	print("Введите код цвета")
-	target_color = int(input())
+	target_color = 0
+
 	ev3.speaker.beep(500, 200)
 	process_line_0(target_color)
 	row = 1
 	current_color = target_color
 	while row < ROWS:
-		# --
 		move_to(row, current_color % COLS)
-		# --
 		current_color = detect_color()
 		if current_color == target_color:
 			drop()
@@ -234,7 +225,7 @@ def run():
 
 
 # запуск программы
-# run()
+run()
 # ----------------------------------------------------------
 
 
@@ -267,7 +258,7 @@ def run():
 # just moving
 
 # ev3.speaker.beep(300, 100)
-# run_motor(MOTOR_A, -10)
+# run_motor(MOTOR_A, SPEED_A, -175)
 # run_motor(MOTOR_A, -15)
 # run_motor(motor_d, 780)
 # wait(5000)
@@ -436,6 +427,74 @@ def forward_along_first_row():
 	print(detect_color())
 
 
+def forward_along_2_row():
+	# init_map()
+	print(detect_color())
+	move_to(1, 1)
+	print(detect_color())
+	move_to(1, 2)
+	print(detect_color())
+	move_to(1, 3)
+	print(detect_color())
+	move_to(1, 2)
+	print(detect_color())
+	move_to(1, 1)
+	print(detect_color())
+	move_to(1, 0)
+	print(detect_color())
+
+
+def forward_along_3_row():
+	# init_map()
+	print(detect_color())
+	move_to(2, 1)
+	print(detect_color())
+	move_to(2, 2)
+	print(detect_color())
+	move_to(2, 3)
+	print(detect_color())
+	move_to(2, 2)
+	print(detect_color())
+	move_to(2, 1)
+	print(detect_color())
+	move_to(2, 0)
+	print(detect_color())
+
+
+def forward_along_4_row():
+	# init_map()
+	print(detect_color())
+	move_to(3, 1)
+	print(detect_color())
+	move_to(3, 2)
+	print(detect_color())
+	move_to(3, 3)
+	print(detect_color())
+	move_to(3, 2)
+	print(detect_color())
+	move_to(3, 1)
+	print(detect_color())
+	move_to(3, 0)
+	print(detect_color())
+
+
+def forward_along_5_row():
+	# init_map()
+	print(detect_color())
+	move_to(4, 1)
+	print(detect_color())
+	move_to(4, 2)
+	print(detect_color())
+	move_to(4, 3)
+	print(detect_color())
+	move_to(4, 2)
+	print(detect_color())
+	move_to(4, 1)
+	print(detect_color())
+	move_to(4, 0)
+	print(detect_color())
+
+
 def forward_along_first_column():
 	global is_dropped
 	init_map()
@@ -457,7 +516,7 @@ def forward_along_first_column():
 	move_to(0, 0)
 
 
-forward_along_last_column()
+# forward_along_last_column()
 # forward_along_first_row()
 # forward_along_first_column()
 
@@ -482,8 +541,9 @@ forward_along_last_column()
 # move_to(0, 3)
 
 # print(detect_color())
-# move_to(4, 3)
+# move_to(0, 0)
 # print(detect_color())
+# wait(10000)
 
 # print(detect_color())
 # move_to(0, 3)
@@ -492,3 +552,19 @@ forward_along_last_column()
 # drop()
 # move_to(0, 0)
 # print(detect_color())
+
+# forward_along_first_row()
+# print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+# move_to(1, 0)
+# forward_along_2_row()
+# print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+# move_to(2, 0)
+# forward_along_3_row()
+# print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+# move_to(3, 0)
+# forward_along_4_row()
+# print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+# move_to(4, 0)
+# forward_along_5_row()
+# print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+# move_to(0, 0)
